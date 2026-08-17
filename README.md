@@ -5,17 +5,17 @@ This project is built on the work of Nicolas "Pixel" Noble who came up with the 
 ## Pins
 | Pico GPIO # | PS1 |
 | ----------- | --- |
-| 0 | D0 |
-| 1 | D1 |
-| 2 | D2 |
-| 3 | D3 |
-| 4 | D4 |
-| 5 | D5 |
-| 6 | D6 |
-| 7 | D7 |
-| 8 | CS0 |
-| 9 | RD |
-| 10 | RESET |
+| 0 | RESET |
+| 1 | CS0 |
+| 3 | D0 |
+| 4 | D1 |
+| 4 | D2 |
+| 6 | D3 |
+| 7 | D4 |
+| 8 | D5 |
+| 9 | D6 |
+| 10 | D7 |
+| 12 | RD |
 
 ## Creating a payload
 You can create a payload using [ps1-packer](https://github.com/grumpycoders/pcsx-redux/tree/main/tools/ps1-packer). A pre-compiled version of this tool is included in releases of [PCSX-Redux](https://github.com/grumpycoders/pcsx-redux?tab=readme-ov-file#where).

@@ -14,17 +14,17 @@ namespace Pin
 {
     enum : unsigned int
     {
-        D0 = 0,
-        D1 = 1,
-        D2 = 2,
-        D3 = 3,
-        D4 = 4,
-        D5 = 5,
-        D6 = 6,
-        D7 = 7,
-        CS = 8,
-        RD = 9,
-        RESET = 10,
+        PIN_RST = 0u,
+        PIN_CS = 1u,
+        PIN_D0 = 3u,
+        PIN_D1 = 4u,
+        PIN_D2 = 5u,
+        PIN_D3 = 6u,
+        PIN_D4 = 7u,
+        PIN_D5 = 8u,
+        PIN_D6 = 9u,
+        PIN_D7 = 10u,
+        PIN_RD = 12u,
     };
 } // namespace Pin
 
@@ -40,12 +40,12 @@ namespace SM
 
 extern const uint8_t c_payloadStart, c_payloadEnd;
 
-bool resetPending = false;
+bool PIN_RSTPending = false;
 uint32_t lastLowEvent = 0;
 
 int initDMA();
 void initParallelProgram(const PIO pio, const uint8_t sm, const uint8_t offset);
-void resetCallback(uint gpio, uint32_t events);
+void PIN_RSTCallback(uint gpio, uint32_t events);
 
 int initDMA(const volatile void *read_addr, const unsigned int transfer_count)
 {
@@ -72,18 +72,18 @@ void initParallelProgram(const PIO pio, const uint8_t sm, const uint8_t offset)
     sm_config_set_out_shift(&smConfig, false, false, 8);  // 8 bits out, no autopull
     sm_config_set_fifo_join(&smConfig, PIO_FIFO_JOIN_TX); // We don't need TX, so we can join it to RX for more space
 
-    // CS + RD
-    pio_gpio_init(pio, Pin::CS);
-    pio_gpio_init(pio, Pin::RD);
-    gpio_set_input_enabled(Pin::CS, true);
-    gpio_set_input_enabled(Pin::RD, true);
-    sm_config_set_jmp_pin(&smConfig, Pin::RD);
+    // PIN_PIN_CS + PIN_RD
+    pio_gpio_init(pio, Pin::PIN_CS);
+    pio_gpio_init(pio, Pin::PIN_RD);
+    gpio_set_input_enabled(Pin::PIN_CS, true);
+    gpio_set_input_enabled(Pin::PIN_RD, true);
+    sm_config_set_jmp_pin(&smConfig, Pin::PIN_RD);
 
     // Data
-    pio_sm_set_consecutive_pindirs(pio, sm, Pin::D0, 8, false);
-    sm_config_set_out_pins(&smConfig, Pin::D0, 8); // Set pins D0-D7 for the out(pins) instruction
-    sm_config_set_set_pins(&smConfig, Pin::D0, 5); // Set pin D0 to D5 for the set(pindirs) instruction
-    for (uint pin = Pin::D0; pin < Pin::D0 + 8; pin++)
+    pio_sm_set_consecutive_pindirs(pio, sm, Pin::PIN_D0, 8, false);
+    sm_config_set_out_pins(&smConfig, Pin::PIN_D0, 8); // Set pins PIN_D0-D7 for the out(pins) instruction
+    sm_config_set_set_pins(&smConfig, Pin::PIN_D0, 5); // Set pin PIN_D0 to PIN_PIN_D5 for the set(pindirs) instruction
+    for (uint pin = Pin::PIN_D0; pin < Pin::PIN_D0 + 8; pin++)
     {
         pio_gpio_init(pio, pin);
         gpio_set_slew_rate(pin, GPIO_SLEW_RATE_FAST);
@@ -91,38 +91,38 @@ void initParallelProgram(const PIO pio, const uint8_t sm, const uint8_t offset)
     }
     // Sideset config, for controlling bits 5-7 of the data pins
     sm_config_set_sideset(&smConfig, 3 + 1, true, true); // 3 bits sideset + 1 bit for SIDE_EN(optional sideset)
-    sm_config_set_sideset_pin_base(&smConfig, Pin::D5);  // Set the base pin for the sideset to D5
+    sm_config_set_sideset_pin_base(&smConfig, Pin::PIN_D5);  // Set the base pin for the sideset to PIN_D5
 
     // Push the config to the PIO state machine
     pio_sm_init(pio, sm, offset, &smConfig);
 }
 
-void resetCallback(uint gpio, uint32_t events)
+void PIN_RSTCallback(uint gpio, uint32_t events)
 {
-    // resetPending = true;
+    // PIN_RSTPending = true;
     if (events & GPIO_IRQ_LEVEL_LOW)
     {
         lastLowEvent = time_us_32();
         // Disable low signal edge detection
-        gpio_set_irq_enabled(Pin::RESET, GPIO_IRQ_LEVEL_LOW, false);
+        gpio_set_irq_enabled(Pin::PIN_RST, GPIO_IRQ_LEVEL_LOW, false);
         // Enable high signal edge detection
-        gpio_set_irq_enabled(Pin::RESET, GPIO_IRQ_LEVEL_HIGH, true);
+        gpio_set_irq_enabled(Pin::PIN_RST, GPIO_IRQ_LEVEL_HIGH, true);
     }
     else if (events & GPIO_IRQ_LEVEL_HIGH)
     {
         // Disable the rising edge detection
-        gpio_set_irq_enabled(Pin::RESET, GPIO_IRQ_LEVEL_HIGH, false);
+        gpio_set_irq_enabled(Pin::PIN_RST, GPIO_IRQ_LEVEL_HIGH, false);
 
         const uint32_t c_now = time_us_32();
         const uint32_t c_timeElapsed = c_now - lastLowEvent;
-        if (c_timeElapsed >= 500U) // Debounce, only reset if the pin was low for more than 500us(.5 ms)
+        if (c_timeElapsed >= 500U) // Debounce, only PIN_RST if the pin was low for more than 500us(.5 ms)
         {
-            resetPending = true;
+            PIN_RSTPending = true;
         }
         else
         {
             // Enable the low signal edge detection again
-            gpio_set_irq_enabled(Pin::RESET, GPIO_IRQ_LEVEL_LOW, true);
+            gpio_set_irq_enabled(Pin::PIN_RST, GPIO_IRQ_LEVEL_LOW, true);
         }
     }
 }
@@ -138,9 +138,9 @@ int main()
     // Initialize stdio for debugging
     stdio_init_all();
 
-    // Initialize reset pin
-    gpio_init(Pin::RESET);
-    gpio_set_dir(Pin::RESET, GPIO_IN);
+    // Initialize PIN_RST pin
+    gpio_init(Pin::PIN_RST);
+    gpio_set_dir(Pin::PIN_RST, GPIO_IN);
 
     initParallelProgram(PIOInstance::c_pioParallelOut, SM::c_smParallelOut, pio_add_program(PIOInstance::c_pioParallelOut, &parallel_program));
 
@@ -153,38 +153,38 @@ int main()
             return 1;
         }
 
-        // Reset the console and start the payload out program
-        gpio_set_dir(Pin::RESET, GPIO_OUT);
-        gpio_put(Pin::RESET, 0);
+        // PIN_RST the console and start the payload out program
+        gpio_set_dir(Pin::PIN_RST, GPIO_OUT);
+        gpio_put(Pin::PIN_RST, 0);
 
         pio_sm_set_enabled(PIOInstance::c_pioParallelOut, SM::c_smParallelOut, true);
-        sleep_ms(250); // Wait a bit for the console to reset
-        gpio_set_dir(Pin::RESET, GPIO_IN);
+        sleep_ms(250); // Wait a bit for the console to PIN_RST
+        gpio_set_dir(Pin::PIN_RST, GPIO_IN);
 
-        while (gpio_get(Pin::RESET) == 0)
+        while (gpio_get(Pin::PIN_RST) == 0)
         {
-            sleep_ms(1); // Wait for the reset pin to go high
+            sleep_ms(1); // Wait for the PIN_RST pin to go high
         }
 
-        // Enable an irq handler for the reset pin, only need to set the callback once
-        gpio_set_irq_enabled_with_callback(Pin::RESET, GPIO_IRQ_LEVEL_LOW, true, &resetCallback);
+        // Enable an irq handler for the PIN_RST pin, only need to set the callback once
+        gpio_set_irq_enabled_with_callback(Pin::PIN_RST, GPIO_IRQ_LEVEL_LOW, true, &PIN_RSTCallback);
 
-        while (!resetPending)
+        while (!PIN_RSTPending)
         {
             sleep_ms(1); // Nothing to do
         }
 
         // Both irq events are disabled now per the callback logic
 
-        while (gpio_get(Pin::RESET) == 0)
+        while (gpio_get(Pin::PIN_RST) == 0)
         {
-            sleep_ms(1); // Wait for the reset pin to go high
+            sleep_ms(1); // Wait for the PIN_RST pin to go high
         }
 
-        printf("Resetting...\n");
-        resetPending = false;
+        printf("PIN_RSTting...\n");
+        PIN_RSTPending = false;
 
-        // Reset DMA and the PIO state machine
+        // PIN_RST DMA and the PIO state machine
         dma_channel_abort(dmaChannel);
         dma_channel_unclaim(dmaChannel);
         pio_sm_set_enabled(PIOInstance::c_pioParallelOut, SM::c_smParallelOut, false);

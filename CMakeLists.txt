@@ -2,10 +2,9 @@
 
 cmake_minimum_required(VERSION 3.13)
 
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_STANDARD 23)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 set(CMAKE_BUILD_TYPE MinSizeRel)
 
 # Initialise pico_sdk from installed location
@@ -17,9 +16,9 @@ if(WIN32)
 else()
     set(USERHOME $ENV{HOME})
 endif()
-set(sdkVersion 2.1.1)
+set(sdkVersion 2.2.0)
 set(toolchainVersion 14_2_Rel1)
-set(picotoolVersion 2.1.1)
+set(picotoolVersion 2.2.0-a4)
 set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
 if (EXISTS ${picoVscode})
     include(${picoVscode})
@@ -36,7 +35,6 @@ project(pico_booty C CXX ASM)
 pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
-
 add_executable(pico_booty
 pico_booty.cpp
 parallel.pio
@@ -70,7 +68,7 @@ target_link_libraries(pico_booty
         hardware_dma
         hardware_pio
         )
-
+        
 #pico_set_binary_type(pico_booty copy_to_ram)
 
 pico_add_extra_outputs(pico_booty)
