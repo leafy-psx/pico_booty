@@ -1,7 +1,0 @@
-/home/breaker/git/PS1/pico_booty/build/pioasm/CMakeFiles/pioasm.dir
-/home/breaker/git/PS1/pico_booty/build/pioasm/CMakeFiles/edit_cache.dir
-/home/breaker/git/PS1/pico_booty/build/pioasm/CMakeFiles/rebuild_cache.dir
-/home/breaker/git/PS1/pico_booty/build/pioasm/CMakeFiles/list_install_components.dir
-/home/breaker/git/PS1/pico_booty/build/pioasm/CMakeFiles/install.dir
-/home/breaker/git/PS1/pico_booty/build/pioasm/CMakeFiles/install/local.dir
-/home/breaker/git/PS1/pico_booty/build/pioasm/CMakeFiles/install/strip.dir
