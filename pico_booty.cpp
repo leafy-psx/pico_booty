@@ -81,8 +81,8 @@ void initParallelProgram(const PIO pio, const uint8_t sm, const uint8_t offset)
 
     // Data
     pio_sm_set_consecutive_pindirs(pio, sm, Pin::PIN_D0, 8, false);
-    sm_config_set_out_pins(&smConfig, Pin::PIN_D0, 8); // Set pins PIN_D0-D7 for the out(pins) instruction
-    sm_config_set_set_pins(&smConfig, Pin::PIN_D0, 5); // Set pin PIN_D0 to PIN_PIN_D5 for the set(pindirs) instruction
+    sm_config_set_out_pins(&smConfig, Pin::PIN_D0, 8); // Set pins D0-D7 for the out(pins) instruction
+    sm_config_set_set_pins(&smConfig, Pin::PIN_D0, 5); // Set pin D0 to D5 for the set(pindirs) instruction
     for (uint pin = Pin::PIN_D0; pin < Pin::PIN_D0 + 8; pin++)
     {
         pio_gpio_init(pio, pin);
@@ -91,7 +91,7 @@ void initParallelProgram(const PIO pio, const uint8_t sm, const uint8_t offset)
     }
     // Sideset config, for controlling bits 5-7 of the data pins
     sm_config_set_sideset(&smConfig, 3 + 1, true, true); // 3 bits sideset + 1 bit for SIDE_EN(optional sideset)
-    sm_config_set_sideset_pin_base(&smConfig, Pin::PIN_D5);  // Set the base pin for the sideset to PIN_D5
+    sm_config_set_sideset_pin_base(&smConfig, Pin::PIN_D5);  // Set the base pin for the sideset to D5
 
     // Push the config to the PIO state machine
     pio_sm_init(pio, sm, offset, &smConfig);
