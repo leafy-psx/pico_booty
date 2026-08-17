@@ -72,7 +72,7 @@ void initParallelProgram(const PIO pio, const uint8_t sm, const uint8_t offset)
     sm_config_set_out_shift(&smConfig, false, false, 8);  // 8 bits out, no autopull
     sm_config_set_fifo_join(&smConfig, PIO_FIFO_JOIN_TX); // We don't need TX, so we can join it to RX for more space
 
-    // PIN_PIN_CS + PIN_RD
+    // CS + RD
     pio_gpio_init(pio, Pin::PIN_CS);
     pio_gpio_init(pio, Pin::PIN_RD);
     gpio_set_input_enabled(Pin::PIN_CS, true);
@@ -153,7 +153,7 @@ int main()
             return 1;
         }
 
-        // reset the console and start the payload out program
+        // Reset the console and start the payload out program
         gpio_set_dir(Pin::PIN_RST, GPIO_OUT);
         gpio_put(Pin::PIN_RST, 0);
 
@@ -181,10 +181,10 @@ int main()
             sleep_ms(1); // Wait for the reset pin to go high
         }
 
-        printf("resetting...\n");
+        printf("Resetting...\n");
         resetPending = false;
 
-        // reset DMA and the PIO state machine
+        // Reset DMA and the PIO state machine
         dma_channel_abort(dmaChannel);
         dma_channel_unclaim(dmaChannel);
         pio_sm_set_enabled(PIOInstance::c_pioParallelOut, SM::c_smParallelOut, false);
